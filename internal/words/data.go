@@ -22,7 +22,8 @@ func (r *Repo) RGetWordById(id int) (*Word, error) {
 	return &word, nil
 }
 
-func (r *Repo) CreateNewWord(word, translate string) error {
+// CreateNewWords добавляет новые переводы в базу даных
+func (r *Repo) CreateNewWords(word, translate string) error {
 	_, err := r.db.Exec(`INSERT INTO ru_en (title, translation) VALUES ($1, $2)`, word, translate)
 	if err != nil {
 		return err

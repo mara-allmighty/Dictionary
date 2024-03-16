@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// GetWordById идем слово по id
+// localhost:8000/api/word/:id
 func (s *Service) GetWordById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
@@ -25,6 +27,8 @@ func (s *Service) GetWordById(c echo.Context) error {
 	return c.JSON(http.StatusOK, Response{Object: word})
 }
 
+// CreateWords добавляем в базу новые слова в базу
+// localhost:8000/api/words
 func (s *Service) CreateWords(c echo.Context) error {
 	var wordSlice []Word
 	err := c.Bind(&wordSlice)
@@ -35,7 +39,7 @@ func (s *Service) CreateWords(c echo.Context) error {
 
 	repo := words.NewRepo(s.db)
 	for _, word := range wordSlice {
-		err = repo.CreateNewWord(word.Title, word.Translation)
+		err = repo.CreateNewWords(word.Title, word.Translation)
 	}
 	if err != nil {
 		s.logger.Error(err)
