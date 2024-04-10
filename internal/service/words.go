@@ -5,10 +5,11 @@ import (
 	"strconv"
 
 	"dictionary/internal/words"
+
 	"github.com/labstack/echo/v4"
 )
 
-// GetWordById идем слово по id
+// GetWordById ищем слово по id
 // localhost:8000/api/word/:id
 func (s *Service) GetWordById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
