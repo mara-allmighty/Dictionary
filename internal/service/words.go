@@ -14,14 +14,14 @@ func (s *Service) GetWordById(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		s.logger.Error(err)
-		return s.NewError(InvalidParams)
+		return c.JSON(s.NewError(InvalidParams))
 	}
 
 	repo := words.NewRepo(s.db)
 	word, err := repo.RGetWordById(id)
 	if err != nil {
 		s.logger.Error(err)
-		return s.NewError(InternalServerError)
+		return c.JSON(s.NewError(InternalServerError))
 	}
 
 	return c.JSON(http.StatusOK, Response{Object: word})
@@ -34,7 +34,7 @@ func (s *Service) CreateWords(c echo.Context) error {
 	err := c.Bind(&wordSlice)
 	if err != nil {
 		s.logger.Error(err)
-		return s.NewError(InvalidParams)
+		return c.JSON(s.NewError(InvalidParams))
 	}
 
 	repo := words.NewRepo(s.db)
@@ -43,8 +43,8 @@ func (s *Service) CreateWords(c echo.Context) error {
 	}
 	if err != nil {
 		s.logger.Error(err)
-		return s.NewError(InternalServerError)
+		return c.JSON(s.NewError(InternalServerError))
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.String(http.StatusOK, "OK")
 }

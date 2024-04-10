@@ -31,6 +31,6 @@ func (r *Response) Error() string {
 	return r.ErrorMessage
 }
 
-func (s *Service) NewError(err string) error {
-	return &Response{ErrorMessage: err}
+func (s *Service) NewError(err string) (int, *Response) {
+	return 400, &Response{ErrorMessage: err}
 }
