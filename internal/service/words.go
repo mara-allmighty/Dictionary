@@ -4,8 +4,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"dictionary/internal/words"
-
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,7 +16,7 @@ func (s *Service) GetWordById(c echo.Context) error {
 		return c.JSON(s.NewError(InvalidParams))
 	}
 
-	repo := words.NewRepo(s.db)
+	repo := s.wordsRepo
 	word, err := repo.RGetWordById(id)
 	if err != nil {
 		s.logger.Error(err)
@@ -38,7 +36,7 @@ func (s *Service) CreateWords(c echo.Context) error {
 		return c.JSON(s.NewError(InvalidParams))
 	}
 
-	repo := words.NewRepo(s.db)
+	repo := s.wordsRepo
 	for _, word := range wordSlice {
 		err = repo.CreateNewWords(word.Title, word.Translation)
 	}

@@ -2,6 +2,9 @@ package service
 
 import (
 	"database/sql"
+
+	"dictionary/internal/words"
+
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,14 +16,25 @@ const (
 type Service struct {
 	db     *sql.DB
 	logger echo.Logger
+
+	wordsRepo *words.Repo
 }
 
 func NewService(db *sql.DB, logger echo.Logger) *Service {
-	return &Service{
+	svc := &Service{
 		db:     db,
 		logger: logger,
 	}
+	svc.initRepositories(db)
+
+	return svc
 }
+
+func (s *Service) initRepositories(db *sql.DB) {
+	s.wordsRepo = words.NewRepo(db)
+}
+
+// Пока можно не вдаваться в то что ниже
 
 type Response struct {
 	Object       any    `json:"object,omitempty"`

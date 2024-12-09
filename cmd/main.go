@@ -2,14 +2,14 @@ package main
 
 import (
 	"dictionary/internal/service"
+	"dictionary/pkg/logs"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/gommon/log"
 )
 
 func main() {
 	// создаем логгер
-	logger := log.New("dict")
+	logger := logs.NewLogger(false)
 
 	// подключаемся к базе
 	db, err := PostgresConnection()
