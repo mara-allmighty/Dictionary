@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15
+    container_name: dictionary-db
+    environment:
+      POSTGRES_PASSWORD: asdfg
+      POSTGRES_DB: dict
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    # Автоматически запускается первым
+    restart: unless-stopped
+
+  app:
+    build: .
+    container_name: dictionary-app
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=asdfg
+      - DB_NAME=dict
+    depends_on:
+      - db
+    # Ждём, пока PostgreSQL запустится
+    command: >
+      sh -c "
+      while ! nc -z db 5432; do
+        echo 'Ожидание PostgreSQL...';
+        sleep 1;
+      done;
+      echo 'PostgreSQL готов! Запускаем сервер...';
+      ./main
+      "
+    # Перезапускать при падении
+    restart: on-failure
+
+# Добавим утилиту для проверки сети
+volumes:
+  postgres-data:
+
+# Установим зависимости
+# (если ещё не установлен)
