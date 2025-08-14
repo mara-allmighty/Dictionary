@@ -4,6 +4,15 @@ CREATE TABLE ru_en (
                        translation VARCHAR(255)
 );
 
+CREATE TABLE reports(
+                        id SERIAL PRIMARY KEY,
+                        title VARCHAR (50) UNIQUE,
+                        description TEXT,
+                        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+                        updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+)
+
+
 INSERT INTO ru_en (title, translation) VALUES
                                            ('Привет', 'Hello'),
                                            ('Мир', 'World'),
