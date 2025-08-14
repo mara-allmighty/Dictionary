@@ -13,8 +13,8 @@ func NewReportsRepo(db *sql.DB) *ReportsRepo {
 }
 
 // получаем репорт по id
-func (rr *ReportsRepo) GetReport() error {
-	return nil
+func (rr *ReportsRepo) GetReport() (*Report, error) {
+	return nil, nil
 }
 
 // создаем репорт

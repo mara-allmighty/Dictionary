@@ -1,11 +1,6 @@
-package service
+package reports
 
 import "time"
-
-type Word struct {
-	Title       string `json:"title"`
-	Translation string `json:"translation"`
-}
 
 type Report struct {
 	Id          int       `json:"id"`
