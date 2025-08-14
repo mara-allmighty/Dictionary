@@ -6,11 +6,11 @@ CREATE TABLE ru_en (
 
 CREATE TABLE reports(
                         id SERIAL PRIMARY KEY,
-                        title VARCHAR (50) UNIQUE,
-                        description TEXT,
+                        title TEXT UNIQUE,
+                        overview TEXT,
                         created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
                         updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-)
+);
 
 
 INSERT INTO ru_en (title, translation) VALUES

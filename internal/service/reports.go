@@ -1,30 +1,93 @@
 package service
 
 import (
+	"net/http"
+	"strconv"
+
 	"github.com/labstack/echo/v4"
 )
 
-// localhost:8000/api/report/:id
+// GET - localhost:8000/api/report/:id
 func (s *Service) GetReport(c echo.Context) error {
-	return nil
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	report, err := s.reportsRepo.GetReport(id)
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InternalServerError))
+	}
+
+	return c.JSON(http.StatusOK, Response{Object: report})
 }
 
-// localhost:8000/api/report/words
+// POST - localhost:8000/api/reports
 func (s *Service) CreateReport(c echo.Context) error {
-	return nil
+	var report Report
+	err := c.Bind(&report)
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	err = s.reportsRepo.CreateReport(report.Title, report.Overview)
+
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InternalServerError))
+	}
+
+	return c.String(http.StatusOK, "OK")
 }
 
-// localhost:8000/api/report/:id
+// UPDATE - localhost:8000/api/report/:id
 type UpdateReport struct {
-	Title       string `json:"title" validate:"required,min=1"`
-	Translation string `json:"translation" validate:"required,min=1"`
+	Title    string `json:"title" validate:"required,min=1"`
+	Overview string `json:"overview" validate:"required,min=1"`
 }
 
 func (s *Service) UpdateReport(c echo.Context) error {
-	return nil
+	// парсим JSON из тела запроса
+	var req UpdateReport
+	if err := c.Bind(&req); err != nil {
+		s.logger.Error("Invalid JSON:", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body, expected JSON",
+		})
+	}
+
+	// парсим id-шник из URL
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	// обновляем репорт в БД
+	err = s.reportsRepo.UpdateReport(id, req.Title, req.Overview)
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(err.Error()))
+	}
+	return c.JSON(http.StatusOK, Response{Object: "Ok"})
 }
 
-// localhost:8000/api/report/:id
+// DELETE - localhost:8000/api/report/:id
 func (s *Service) DeleteReport(c echo.Context) error {
-	return nil
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	err = s.reportsRepo.DeleteReport(id)
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, Response{Object: "Ok"})
 }
