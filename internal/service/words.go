@@ -48,42 +48,54 @@ func (s *Service) CreateWords(c echo.Context) error {
 	return c.String(http.StatusOK, "OK")
 }
 
-func (s *Service) UpdateWordById(c echo.Context) error {
-	// UpdateWordById - редактируем слово в БД
-	// PUT_localhost:8000/api/word/:id
-
-	title := c.FormValue("title")
-	translation := c.FormValue("translation")
-	id, err := strconv.Atoi(c.FormValue("id"))
-	if err != nil {
-		s.logger.Error(err)
-		return c.JSON(s.NewError(InvalidParams))
-	}
-
-	repo := s.wordsRepo
-	msg, err := repo.RUpdateWordById(id, title, translation)
-	if err != nil {
-		s.logger.Error(err)
-		return c.JSON(s.NewError(err.Error()))
-	}
-	return c.JSON(http.StatusOK, Response{Object: msg})
+// UpdateWordById - редактируем слово в БД
+// localhost:8000/api/word/:id
+type UpdateData struct {
+	Title       string `json:"title" validate:"required,min=1"`
+	Translation string `json:"translation" validate:"required,min=1"`
 }
 
-func (s *Service) DeleteWordById(c echo.Context) error {
-	// DeleteWordById - удаляем запись слова в БД
-	// DELETE_localhost:8000/api/word/:id
+func (s *Service) UpdateWordById(c echo.Context) error {
+	// Парсим JSON из тела запроса
+	var req UpdateData
+	if err := c.Bind(&req); err != nil {
+		s.logger.Error("Invalid JSON:", err)
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body, expected JSON",
+		})
+	}
 
+	// Парсим id-шник из URL
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(InvalidParams))
+	}
+
+	// Обновляем слово в БД
+	err = s.wordsRepo.RUpdateWordById(id, req.Title, req.Translation)
+	if err != nil {
+		s.logger.Error(err)
+		return c.JSON(s.NewError(err.Error()))
+	}
+	return c.JSON(http.StatusOK, Response{Object: "Ok"})
+}
+
+// DeleteWordById - удаляем запись слова в БД
+// localhost:8000/api/word/:id
+func (s *Service) DeleteWordById(c echo.Context) error {
+	// Парсим id-шник из URL
 	id, err := strconv.Atoi(c.FormValue("id"))
 	if err != nil {
 		s.logger.Error(err)
 		return c.JSON(s.NewError(InvalidParams))
 	}
 
-	repo := s.wordsRepo
-	msg, err := repo.RDeleteWordById(id)
+	// Удаляем слово из БД
+	err = s.wordsRepo.RDeleteWordById(id)
 	if err != nil {
 		s.logger.Error(err)
 		return c.JSON(s.NewError(err.Error()))
 	}
-	return c.JSON(http.StatusOK, Response{Object: msg})
+	return c.JSON(http.StatusOK, Response{Object: "Ok"})
 }

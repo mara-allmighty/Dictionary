@@ -2,7 +2,6 @@ package words
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 )
 
@@ -36,48 +35,45 @@ func (r *Repo) CreateNewWords(word, translate string) error {
 	return nil
 }
 
-func (r *Repo) RUpdateWordById(id int, updatedTitle, updatedTranslation string) (string, error) {
-	// RUpdateWordById - редактирует запись в БД "dict"
-	// Проверяет в БД существование записи по полученному id
+func (r *Repo) RUpdateWordById(id int, updatedTitle, updatedTranslation string) error {
+	var title string
 
-	var word Word
-	myErr := r.db.QueryRow(`SELECT id, title, translation FROM ru_en WHERE id = $1`, id).Scan(&word.Id, &word.Title, &word.Translation)
-	if myErr == sql.ErrNoRows {
-		return fmt.Sprintf("Word with ID %d doesn't exist", id), errors.New("WordNotFoundError")
-	}
-
-	_, err := r.db.Exec(
+	// Выполняем UPDATE и сразу получаем обновлённое значение
+	err := r.db.QueryRow(
 		`UPDATE ru_en
-			SET title = $1,
-				translation = $2
-		WHERE id = $3`,
-		updatedTitle,
-		updatedTranslation,
-		id,
-	)
+			SET title = $1, translation = $2
+			WHERE id = $3
+			RETURNING title`,
+		updatedTitle, updatedTranslation, id,
+	).Scan(&title)
+
 	if err != nil {
-		return "", err
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("word with ID %d not found", id)
+		}
+		return fmt.Errorf("database error: %w", err)
 	}
 
-	msg := fmt.Sprintf("Word with ID %d updated successfully!", id)
-	return msg, nil
+	return nil
 }
 
-func (r *Repo) RDeleteWordById(id int) (string, error) {
-	// RDeleteWordById - удаляет запись в БД "dict"
-	// Проверяет в БД существование записи по полученному id
+func (r *Repo) RDeleteWordById(id int) error {
+	var title string
 
-	var word Word
-	myErr := r.db.QueryRow(`SELECT id, title, translation FROM ru_en WHERE id = $1`, id).Scan(&word.Id, &word.Title, &word.Translation)
-	if myErr == sql.ErrNoRows {
-		return fmt.Sprintf("Word with ID %d doesn't exist", id), errors.New("WordNotFoundError")
-	}
+	// Выполняем DELETE и сразу получаем удалённое значение
+	err := r.db.QueryRow(
+		`DELETE FROM ru_en
+		 WHERE id = $1
+		 RETURNING title`,
+		id,
+	).Scan(&title)
 
-	_, err := r.db.Exec(`DELETE FROM ru_en WHERE id = $1`, id)
 	if err != nil {
-		return "", err
+		if err == sql.ErrNoRows {
+			return fmt.Errorf("word with ID %d not found", id)
+		}
+		return fmt.Errorf("database error: %w", err)
 	}
 
-	msg := fmt.Sprintf("Word with ID %d was deleted successfully!", id)
-	return msg, nil
+	return nil
 }

@@ -1,0 +1,18 @@
+# IDE
+.idea/
+.vscode/
+
+# Логи
+*.log
+logs/
+
+# Бинарники Go
+/main
+*.exe
+
+# Docker
+.Dockerfile.swp
+
+# ОС
+.DS_Store
+Thumbs.db
