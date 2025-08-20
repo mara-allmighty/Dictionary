@@ -36,6 +36,9 @@ func main() {
 	api.PUT("/report/:id", svc.UpdateReport)
 	api.DELETE("/report/:id", svc.DeleteReport)
 
+	// searching closest 100 words
+	api.GET("/search/ru", svc.SearchClosestWords)
+
 	// запускаем сервер, чтобы слушал 8000 порт
 	router.Logger.Fatal(router.Start(":8000"))
 }
