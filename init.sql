@@ -29,3 +29,6 @@ INSERT INTO ru_en (title, translation) VALUES
                                            ('Машина', 'Car'),
                                            ('Окно', 'Window'),
                                            ('Ручка', 'Pen');
+
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;

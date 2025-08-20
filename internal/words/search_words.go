@@ -2,7 +2,15 @@ package words
 
 func (r *Repo) RSearchClosestWords(title string) ([]Word, error) {
 	// фильтруем базу
-	rows, err := r.db.Query("SELECT id, title, translation FROM ru_en WHERE title LIKE $1 LIMIT 100", "%"+title+"%")
+	rows, err := r.db.Query(`
+        SELECT id, title, translation,
+               similarity(title, $1) as sim
+        FROM ru_en 
+        WHERE similarity(title, $1) >= 0.2
+        ORDER BY sim DESC
+        LIMIT 20`,
+		title,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -12,7 +20,8 @@ func (r *Repo) RSearchClosestWords(title string) ([]Word, error) {
 	var closestsWords []Word
 	for rows.Next() {
 		var closestWord Word
-		err := rows.Scan(&closestWord.Id, &closestWord.Title, &closestWord.Translation)
+		var similarity float64
+		err := rows.Scan(&closestWord.Id, &closestWord.Title, &closestWord.Translation, &similarity)
 		if err != nil {
 			return nil, err
 		}
