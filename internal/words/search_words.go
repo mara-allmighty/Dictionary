@@ -8,7 +8,7 @@ func (r *Repo) RSearchClosestWords(title string) ([]Word, error) {
         FROM ru_en 
         WHERE similarity(title, $1) >= 0.2
         ORDER BY sim DESC
-        LIMIT 20`,
+        LIMIT 100`,
 		title,
 	)
 	if err != nil {
