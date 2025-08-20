@@ -44,14 +44,9 @@ func (s *Service) CreateReport(c echo.Context) error {
 }
 
 // UPDATE - localhost:8000/api/report/:id
-type UpdateReport struct {
-	Title    string `json:"title" validate:"required,min=1"`
-	Overview string `json:"overview" validate:"required,min=1"`
-}
-
 func (s *Service) UpdateReport(c echo.Context) error {
 	// парсим JSON из тела запроса
-	var req UpdateReport
+	var req Report
 	if err := c.Bind(&req); err != nil {
 		s.logger.Error("Invalid JSON:", err)
 		return c.JSON(http.StatusBadRequest, map[string]string{
